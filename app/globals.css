@@ -3,13 +3,81 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Design tokens from docs/DESIGN_SYSTEM.md (DEC-006, DEC-007) */
+  --brand-500: #46b0ba;
+  --brand-700: #2f7f87;
+  --brand-900: #123f44;
+  --brand-12: rgba(70, 176, 186, 0.12);
+  --brand-20: rgba(70, 176, 186, 0.2);
+  --brand-36: rgba(70, 176, 186, 0.36);
+
+  --surface: #ffffff;
+  --surface-soft: #f6fbfb;
+  --surface-glass: rgba(255, 255, 255, 0.72);
+
+  --text-primary: #123f44;
+  --text-secondary: #52777a;
+  --text-on-brand: #ffffff;
+
+  --border-soft: rgba(70, 176, 186, 0.18);
+  --border-strong: rgba(70, 176, 186, 0.34);
+
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 16px 45px rgba(18, 63, 68, 0.08);
+  --shadow-float: 0 24px 70px rgba(18, 63, 68, 0.14);
+
+  --duration-fast: 180ms;
+  --duration-base: 420ms;
+  --duration-slow: 800ms;
+  --ease-brand: cubic-bezier(0.22, 0.76, 0.24, 1);
+
+  /* Altura real del header flotante + su separación superior, usada para
+     que el scroll a anclas (#sistema, #resultados, etc.) no las esconda
+     debajo del navbar. Se ajusta si cambia la altura del header. */
+  --header-offset: 104px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+
+  --color-brand-500: var(--brand-500);
+  --color-brand-700: var(--brand-700);
+  --color-brand-900: var(--brand-900);
+  --color-brand-12: var(--brand-12);
+  --color-brand-20: var(--brand-20);
+  --color-brand-36: var(--brand-36);
+
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-surface-glass: var(--surface-glass);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-on-brand: var(--text-on-brand);
+
+  --color-border-soft: var(--border-soft);
+  --color-border-strong: var(--border-strong);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-float: var(--shadow-float);
+
+  --duration-fast: var(--duration-fast);
+  --duration-base: var(--duration-base);
+  --duration-slow: var(--duration-slow);
+  --ease-brand: var(--ease-brand);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +90,49 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Inter (cargada en app/layout.tsx) es el reemplazo de Helvetica Neue.
+     El resto de la pila es el fallback si Inter no llegó a cargar. */
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Scroll suave entre anclas de la landing (#sistema, #resultados, ...).
+   scroll-padding-top evita que el navbar sticky tape el título de la
+   sección de destino, en vez de agregar márgenes arbitrarios en cada una. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Fallback de glassmorphism (ver docs/DESIGN_SYSTEM.md sección 6 y
+   DEC-009). Usado por la barra principal del navbar y por el panel de menú
+   móvil. liquid-glass-react quedó instalado pero no se usa en el navbar:
+   ver el comentario en components/layout/site-header.tsx sobre por qué. */
+.glass-surface {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  backdrop-filter: blur(20px) saturate(130%);
+  transition:
+    background-color var(--duration-slow) var(--ease-brand),
+    box-shadow var(--duration-slow) var(--ease-brand);
+}
+
+/* Se activa por JS (components/layout/site-header.tsx) apenas el usuario
+   empieza a scrollear, para reforzar muy sutilmente el vidrio del navbar. */
+.glass-surface[data-scrolled="true"] {
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow-float);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-surface {
+    transition: none;
+  }
 }
