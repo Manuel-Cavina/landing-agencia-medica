@@ -1,8 +1,15 @@
 /**
- * Franja horizontal de estadísticas debajo del hero (docs/AGENTS.md la
- * menciona como "Franja horizontal de información vinculada al sistema").
- * Sigue siendo Server Component: el conteo animado vive aislado en
- * components/motion/stat-counter.tsx.
+ * Franja de estadísticas debajo del hero (docs/AGENTS.md la menciona como
+ * "Franja horizontal de información vinculada al sistema"). Sigue siendo
+ * Server Component: el conteo animado vive aislado en components/motion/
+ * stat-counter-group.tsx.
+ *
+ * A pedido del cliente: barra a todo el ancho de la página (por eso el
+ * fondo turquesa va afuera del Container, y el Container solo se usa
+ * adentro para alinear los números con el resto del contenido), en
+ * turquesa sólido en vez del degradado de la versión anterior, y pegada
+ * directamente contra el hero (sin padding arriba que deje una línea
+ * blanca entre ambas secciones).
  *
  * Importante: ver el comentario en content/landing.ts sobre por qué estas
  * cifras describen el alcance del sistema y no resultados de clínicas o
@@ -10,24 +17,19 @@
  */
 
 import { Container } from "@/components/ui/container";
-import { StatCounter } from "@/components/motion/stat-counter";
+import { StatCounterGroup } from "@/components/motion/stat-counter-group";
 import { STATS } from "@/content/landing";
 
 export function StatsStrip() {
   return (
-    <section className="border-t border-border-soft bg-surface-soft py-16 sm:py-20">
+    <section className="pb-10 sm:pb-14">
+      <div className="bg-brand-500 px-6 py-8 sm:px-10 sm:py-10">
+        <Container>
+          <StatCounterGroup stats={STATS} />
+        </Container>
+      </div>
       <Container>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 text-center sm:grid-cols-4">
-          {STATS.map((stat) => (
-            <div key={stat.label}>
-              <p className="text-3xl font-black text-brand-700 sm:text-4xl">
-                <StatCounter value={stat.value} suffix={stat.suffix} />
-              </p>
-              <p className="mt-2 text-sm text-text-secondary">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-10 text-center text-xs text-text-secondary/70">
+        <p className="mt-4 text-center text-xs text-text-secondary/70">
           Cifras ilustrativas del alcance del sistema — se actualizan con
           datos reales validados junto al cliente.
         </p>
