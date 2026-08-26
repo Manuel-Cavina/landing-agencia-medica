@@ -80,12 +80,11 @@
   --ease-brand: var(--ease-brand);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Sin variante oscura a propósito: docs/DESIGN_SYSTEM.md define una única
+   identidad (blanco + #46B0BA) y no contempla un tema dark. El bloque
+   @media (prefers-color-scheme: dark) del scaffold de create-next-app
+   volvía el fondo casi negro para cualquier visitante con el sistema en
+   modo oscuro -- justo lo que se reportó como "fondo oscuro". */
 
 body {
   background: var(--background);

@@ -19,12 +19,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { CalendarCheck, Menu, X } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import { NAV_CTA, NAV_LINKS, SITE_NAME_PLACEHOLDER } from "@/config/site";
+import { NAV_CTA, NAV_LINKS, SITE_NAME } from "@/config/site";
 
 export function SiteHeader() {
-  // true una vez que el usuario scrolleó más allá de un pequeño umbral.
-  // Se usa solo para reforzar sutilmente el vidrio (más opacidad, más
-  // sombra), nunca para cambiar el tamaño del navbar.
+  // true una vez que el usuario scrolleó más allá de un pequeño umbral
+  // (8px, básicamente "apenas se mueve"). Controla dos cosas a la vez:
+  // que la barra pase de transparente a la tarjeta de vidrio sólida, y el
+  // pequeño refuerzo de opacidad/sombra sobre esa tarjeta. Nunca cambia
+  // el tamaño del navbar.
+  //
+  // Antes esto se decidía con un IntersectionObserver sobre el hero
+  // completo (transparente mientras CUALQUIER parte del hero, incluido
+  // el video, siguiera a la vista) -- pero eso rompía visualmente apenas
+  // el usuario scrolleaba hasta la tarjeta turquesa del video: el navbar
+  // transparente quedaba flotando encima de ese fondo turquesa, ilegible.
+  // Con un umbral de scroll chico, la barra ya es sólida mucho antes de
+  // llegar al video.
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Controla si el panel del menú móvil está abierto.
@@ -166,10 +176,18 @@ export function SiteHeader() {
   }, [isMenuOpen, closeMenu]);
 
   return (
-    <header className="sticky top-4 z-50 sm:top-6">
+    // fixed, no sticky: el navbar nunca participa del flujo del documento,
+    // así que cualquier sección de más abajo (ver app/page.tsx) reserva su
+    // propio padding-top para no quedar tapada por él.
+    <header className="fixed inset-x-0 top-4 z-50 sm:top-6">
       <Container className="relative">
-        {/* Barra principal: logo + nav + CTA (o logo + botón de menú en móvil).
-            Usa el fallback CSS (.glass-surface) del design system.
+        {/* Barra principal: logo + nav + CTA (o logo + botón de menú en
+            móvil). Transparente en el tope de la página (flota directamente
+            sobre el fondo del hero, sin tarjeta de vidrio) y con
+            .glass-surface apenas hay cualquier scroll -- el mismo patrón
+            que pidió el cliente a partir de una referencia visual. La
+            barra en sí nunca deja de estar montada ni interactiva; lo
+            único condicional es la clase que le da el fondo de vidrio.
             liquid-glass-react queda instalado (AGENTS.md lo declara para
             todo el sitio) pero no se usa en este navbar: probé envolver la
             barra completa y su técnica interna de auto-centrado
@@ -185,75 +203,87 @@ export function SiteHeader() {
             anotados en DESIGN_SYSTEM.md: calculadora, tarjetas del roadmap). */}
         <div
           data-scrolled={isScrolled}
-          className="glass-surface flex h-16 items-center justify-between gap-4 rounded-lg px-4 sm:h-[72px] sm:px-6"
+          className={`flex h-16 items-center justify-between gap-4 rounded-lg px-4 transition-[background-color,box-shadow,border-color] duration-slow ease-brand sm:h-[72px] sm:px-6 ${
+            isScrolled ? "glass-surface" : ""
+          }`}
         >
-          {/* Logo: isotipo real en public/logo.png (1254x1254, sin wordmark).
-              width/height reservan el espacio exacto para que next/image no
-              genere layout shift mientras carga. El nombre accesible del
-              link vive en el aria-label (todavía no hay marca definitiva:
-              docs/DECISIONS.md), así que alt queda vacío para no duplicarlo. */}
-          <Link href="/" aria-label={SITE_NAME_PLACEHOLDER} className="shrink-0">
-            <Image src="/logo.png" alt="" width={40} height={40} priority className="h-9 w-9 sm:h-10 sm:w-10" />
+          {/* Logo + wordmark. width/height del logo reservan el espacio
+              exacto para que next/image no genere layout shift mientras
+              carga. alt="" porque el nombre accesible del link ya lo da el
+              texto visible "Odisea" (SITE_NAME) -- no hace falta aria-label
+              ni duplicar el nombre en el alt de la imagen. text-brand-700:
+              mismo turquesa que el título del hero (a pedido del cliente),
+              ya no el mismo color que los links de al lado. */}
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            <Image src="/logo.png" alt="" width={48} height={48} priority className="h-11 w-11 sm:h-12 sm:w-12" />
+            <span className="text-lg font-extrabold tracking-tight text-brand-700 sm:text-xl">
+              {SITE_NAME}
+            </span>
           </Link>
 
-          {/* Navegación de escritorio */}
-          <nav
-            aria-label="Navegación principal"
-            className="hidden items-center gap-1 lg:flex"
-          >
-            {NAV_LINKS.map((link) => {
-              const isActive = activeHref === link.href;
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  aria-current={isActive ? "true" : undefined}
-                  className={`relative rounded-pill px-4 py-2 text-sm transition-colors duration-fast ease-brand hover:text-brand-700 ${
-                    isActive
-                      ? "font-semibold text-brand-700"
-                      : "font-medium text-text-primary"
-                  }`}
-                >
-                  {link.label}
-                  {/* Indicador de activo que no depende solo del color: un
-                      punto debajo del link, sumado al cambio de peso de
-                      fuente de arriba. */}
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-pill bg-brand-500"
-                    />
-                  )}
-                </a>
-              );
-            })}
-          </nav>
+          {/* Nav + CTA + botón móvil agrupados juntos del lado derecho
+              (en vez de nav al centro y CTA en la punta): el logo queda
+              solo como ancla a la izquierda, todo lo demás a la derecha. */}
+          <div className="flex items-center gap-6">
+            {/* Navegación de escritorio */}
+            <nav
+              aria-label="Navegación principal"
+              className="hidden items-center gap-1 lg:flex"
+            >
+              {NAV_LINKS.map((link) => {
+                const isActive = activeHref === link.href;
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`relative rounded-pill px-4 py-2 text-xs transition-colors duration-fast ease-brand hover:text-brand-700 ${
+                      isActive
+                        ? "font-semibold text-brand-700"
+                        : "font-medium text-text-secondary"
+                    }`}
+                  >
+                    {link.label}
+                    {/* Indicador de activo que no depende solo del color: un
+                        punto debajo del link, sumado al cambio de peso de
+                        fuente de arriba. */}
+                    {isActive && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-pill bg-brand-500"
+                      />
+                    )}
+                  </a>
+                );
+              })}
+            </nav>
 
-          {/* CTA de escritorio */}
-          <a
-            href={NAV_CTA.href}
-            className="hidden h-12 shrink-0 items-center gap-2 rounded-pill bg-brand-500 px-5 text-sm font-semibold text-text-on-brand transition-colors duration-fast ease-brand hover:bg-brand-700 lg:inline-flex"
-          >
-            {NAV_CTA.label}
-            <CalendarCheck aria-hidden="true" size={18} strokeWidth={2} />
-          </a>
+            {/* CTA de escritorio */}
+            <a
+              href={NAV_CTA.href}
+              className="hidden h-12 shrink-0 items-center gap-2 rounded-pill bg-brand-500 px-5 text-sm font-semibold text-text-on-brand transition-colors duration-fast ease-brand hover:bg-brand-700 lg:inline-flex"
+            >
+              {NAV_CTA.label}
+              <CalendarCheck aria-hidden="true" size={18} strokeWidth={2} />
+            </a>
 
-          {/* Botón de menú móvil */}
-          <button
-            ref={toggleButtonRef}
-            type="button"
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-nav-panel"
-            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-            onClick={() => setIsMenuOpen((open) => !open)}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-text-primary transition-colors duration-fast ease-brand hover:bg-brand-12 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 lg:hidden"
-          >
-            {isMenuOpen ? (
-              <X aria-hidden="true" size={22} />
-            ) : (
-              <Menu aria-hidden="true" size={22} />
-            )}
-          </button>
+            {/* Botón de menú móvil */}
+            <button
+              ref={toggleButtonRef}
+              type="button"
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-nav-panel"
+              aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+              onClick={() => setIsMenuOpen((open) => !open)}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-text-primary transition-colors duration-fast ease-brand hover:bg-brand-12 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 lg:hidden"
+            >
+              {isMenuOpen ? (
+                <X aria-hidden="true" size={22} />
+              ) : (
+                <Menu aria-hidden="true" size={22} />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Fondo oscurecido detrás del panel móvil. Cerrar tocando afuera
@@ -294,7 +324,7 @@ export function SiteHeader() {
                 className={`rounded-sm px-4 py-3 text-base transition-colors duration-fast ease-brand hover:bg-brand-12 ${
                   activeHref === link.href
                     ? "font-semibold text-brand-700"
-                    : "font-medium text-text-primary"
+                    : "font-medium text-text-secondary"
                 }`}
               >
                 {link.label}

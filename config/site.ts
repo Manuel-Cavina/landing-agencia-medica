@@ -37,9 +37,10 @@ export const NAV_CTA = {
 };
 
 /**
- * Nombre comercial: todavía [PENDIENTE] según docs/DECISIONS.md.
- * "Órbita Growth Systems" fue descartado (DESC-001) y no debe usarse.
- * Este texto es solo el nombre accesible del link al inicio, no una
- * marca definitiva.
+ * Nombre comercial: "Odisea", indicado por el cliente. Reemplaza al
+ * anterior estado [PENDIENTE] de docs/DECISIONS.md -- ese documento
+ * todavía no se actualizó con esto (queda para cuando el cliente lo
+ * confirme como definitivo). "Órbita Growth Systems" sigue descartado
+ * (DESC-001) y no debe usarse.
  */
-export const SITE_NAME_PLACEHOLDER = "Inicio";
+export const SITE_NAME = "Odisea";
