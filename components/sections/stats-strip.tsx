@@ -7,13 +7,17 @@
  * A pedido del cliente: barra a todo el ancho de la página (por eso el
  * fondo turquesa va afuera del Container, y el Container solo se usa
  * adentro para alinear los números con el resto del contenido), en
- * turquesa sólido en vez del degradado de la versión anterior, y pegada
- * directamente contra el hero (sin padding arriba que deje una línea
- * blanca entre ambas secciones).
+ * turquesa sólido en vez del degradado de la versión anterior. El
+ * espacio contra el video del hero lo da el propio pb-20/pb-24 del
+ * Container del hero (components/sections/hero.tsx) -- a pedido del
+ * cliente, con bastante aire, no pegada.
  *
- * Importante: ver el comentario en content/landing.ts sobre por qué estas
- * cifras describen el alcance del sistema y no resultados de clínicas o
- * pacientes -- y por qué el caption de abajo las marca como ilustrativas.
+ * El caption "Cifras ilustrativas..." se sacó a pedido del cliente (no le
+ * gustaba la línea visualmente). OJO: era la única marca visible de que
+ * estos números (7 pilares, 5 canales, etc.) son ilustrativos y no datos
+ * reales -- ver content/landing.ts y docs/AGENTS.md ("Hasta recibir casos
+ * validados, identificarlos claramente como demostrativos"). Sigue
+ * documentado ahí, pero ya no aparece en pantalla.
  */
 
 import { Container } from "@/components/ui/container";
@@ -28,12 +32,6 @@ export function StatsStrip() {
           <StatCounterGroup stats={STATS} />
         </Container>
       </div>
-      <Container>
-        <p className="mt-4 text-center text-xs text-text-secondary/70">
-          Cifras ilustrativas del alcance del sistema — se actualizan con
-          datos reales validados junto al cliente.
-        </p>
-      </Container>
     </section>
   );
 }

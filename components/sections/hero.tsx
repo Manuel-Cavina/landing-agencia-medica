@@ -83,7 +83,7 @@ export function Hero() {
         <Reveal delay={0}>
           <a
             href={HERO_CONTENT.badge.href}
-            className="inline-flex items-center gap-2 rounded-pill border border-border-soft bg-brand-12 px-4 py-1.5 text-sm font-semibold text-brand-900 backdrop-blur-sm transition-colors duration-fast ease-brand hover:bg-brand-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="inline-flex items-center gap-2 rounded-pill border border-border-soft bg-brand-12 px-4 py-1.5 text-sm font-semibold text-text-secondary backdrop-blur-sm transition-colors duration-fast ease-brand hover:bg-brand-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
           >
             {HERO_CONTENT.badge.label}
             <ArrowRight aria-hidden="true" size={15} />
@@ -140,7 +140,7 @@ export function Hero() {
                 disputa la atención. */}
             <a
               href={HERO_CONTENT.secondaryLink.href}
-              className="inline-flex items-center gap-2 rounded-pill border border-border-soft bg-brand-12 px-5 py-3 text-sm font-semibold text-brand-900 backdrop-blur-sm transition-colors duration-fast ease-brand hover:bg-brand-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+              className="inline-flex items-center gap-2 rounded-pill border border-border-soft bg-brand-12 px-5 py-3 text-sm font-semibold text-text-secondary backdrop-blur-sm transition-colors duration-fast ease-brand hover:bg-brand-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
             >
               {HERO_CONTENT.secondaryLink.label}
               <ArrowRight aria-hidden="true" size={16} />
