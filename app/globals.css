@@ -112,26 +112,125 @@ html {
    DEC-009). Usado por la barra principal del navbar y por el panel de menú
    móvil. liquid-glass-react quedó instalado pero no se usa en el navbar:
    ver el comentario en components/layout/site-header.tsx sobre por qué. */
+/* Vidrio marcado: opacidad baja y blur alto, así se ve MÁS de lo que
+   pasa por detrás -- que es lo que produce la sensación de vidrio. El
+   brillo interior (`inset 0 1px 0`) simula el canto iluminado del borde
+   superior; es el detalle que separa "panel translúcido" de "vidrio".
+
+   Se probó una versión blanca (0,92 de opacidad, siempre visible) y el
+   cliente pidió volver a ésta. */
 .glass-surface {
-  background: var(--surface-glass);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-soft);
-  -webkit-backdrop-filter: blur(20px) saturate(130%);
-  backdrop-filter: blur(20px) saturate(130%);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    var(--shadow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  backdrop-filter: blur(28px) saturate(165%);
   transition:
     background-color var(--duration-slow) var(--ease-brand),
     box-shadow var(--duration-slow) var(--ease-brand);
 }
 
 /* Se activa por JS (components/layout/site-header.tsx) apenas el usuario
-   empieza a scrollear, para reforzar muy sutilmente el vidrio del navbar. */
+   empieza a scrollear. Sube algo la opacidad, pero sin llegar a blanco:
+   la barra tiene que seguir leyéndose como vidrio cuando pasa por
+   encima de secciones de color. */
 .glass-surface[data-scrolled="true"] {
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: var(--shadow-float);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    var(--shadow-float),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .glass-surface {
     transition: none;
   }
+}
+
+/* Slider de la calculadora (components/calculator/calculator-field.tsx).
+   Vive acá y no en Tailwind porque el aspecto de un <input type="range">
+   se define con pseudo-elementos por motor (::-webkit-slider-thumb,
+   ::-moz-range-thumb), que las clases utilitarias no alcanzan.
+
+   Clase nueva y aislada: no modifica ningún selector existente, así que
+   no puede alterar las secciones ya terminadas.
+
+   El relleno del track hasta el thumb se resuelve con un degradado de
+   dos tramos cuyo corte lo marca --range-progress, una custom property
+   que el componente escribe en línea. Así no hace falta un elemento
+   extra ni JavaScript para pintar el progreso. */
+.calculator-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px; /* área táctil cómoda; el track visible es más fino */
+  background: transparent;
+  cursor: pointer;
+}
+
+.calculator-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    to right,
+    var(--brand-500) 0,
+    var(--brand-500) var(--range-progress, 0%),
+    var(--brand-20) var(--range-progress, 0%),
+    var(--brand-20) 100%
+  );
+}
+
+.calculator-range::-moz-range-track {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    to right,
+    var(--brand-500) 0,
+    var(--brand-500) var(--range-progress, 0%),
+    var(--brand-20) var(--range-progress, 0%),
+    var(--brand-20) 100%
+  );
+}
+
+/* Sin el circulo blanco: el thumb toma el mismo turquesa que el tramo
+   ya recorrido, asi el control se lee como una barra continua en vez de
+   un punto encima de la linea. Conserva sus 20px reales -- el area
+   tactil sigue siendo la misma, solo cambia el color.
+
+   Se probo reemplazarlo por el logo de la marca (un <Image> superpuesto,
+   como los nodos del roadmap) y quedo descartado a pedido del cliente:
+   el anillo del logo sobre una linea de 6px se leia sucio. */
+.calculator-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px; /* centra el thumb sobre un track de 6px */
+  border-radius: var(--radius-pill);
+  background: var(--brand-500);
+  border: none;
+}
+
+.calculator-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-500);
+  border: none;
+}
+
+/* Foco visible sobre el thumb, no un contorno alrededor de todo el
+   control: es lo que el usuario está manipulando con el teclado. */
+.calculator-range:focus-visible {
+  outline: none;
+}
+
+.calculator-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px var(--brand-36);
+}
+
+.calculator-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px var(--brand-36);
 }

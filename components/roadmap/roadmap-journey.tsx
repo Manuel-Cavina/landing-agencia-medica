@@ -32,7 +32,25 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
+
+/**
+ * Suavizado del progreso del scroll. Resorte RÁPIDO y bien amortiguado:
+ * filtra el micro-salto de la rueda pero prácticamente no se retrasa.
+ *
+ * Por qué tan rígido. Un resorte suelto se lee distinto según la
+ * dirección, aunque el retraso sea el mismo en ambas: al BAJAR, la línea
+ * que viene un poco atrás parece natural (todavía no llegó); al SUBIR,
+ * ese mismo retraso deja el trazo dibujado de más y se percibe como que
+ * la línea no acompaña. El cliente lo reportó exactamente así. Con un
+ * resorte rápido el retraso deja de ser perceptible en cualquiera de las
+ * dos direcciones.
+ *
+ * Ya se descartaron los dos extremos: sin resorte quedaba "tosco"
+ * (hereda cada escalón de la rueda) y con 34/26/0.9 la línea se
+ * despegaba del scroll y terminaba de dibujarse sola.
+ */
+const PROGRESS_SPRING = { stiffness: 380, damping: 42, mass: 0.22, restDelta: 0.0005 };
 
 /**
  * Posición horizontal de cada nodo, en porcentaje del ancho del ancla
@@ -80,25 +98,25 @@ export function RoadmapJourney({ children, total }: { children: ReactNode; total
   /** Fracción del recorrido total en la que cae cada nodo (0 a 1). */
   const [nodeStops, setNodeStops] = useState<number[]>([]);
 
-  // "end 100%" (el progreso llega a 1 cuando el pie del recorrido toca el
-  // pie de la ventana), no "end 55%": hoy el roadmap es la última sección
-  // de la página, así que el scroll se termina ANTES de que su pie pueda
-  // subir hasta la mitad de la ventana. Con el offset anterior el
-  // progreso se quedaba en ~0,92 y el nodo 07 nunca se encendía (medido).
-  // Si más adelante se agregan secciones debajo, este valor se puede
-  // volver a bajar para que el trazo termine un poco antes.
+  // El recorrido se ancla a los NODOS, no a los bordes del contenedor:
+  // el progreso vale 0 cuando el nodo 01 llega al centro de la pantalla y
+  // 1 cuando lo alcanza el 07. Antes arrancaba en "start 82%" (o sea
+  // apenas el recorrido asomaba por abajo), y para cuando el nodo 01
+  // quedaba centrado la línea ya iba por el 14% -- con tramos de ~17%
+  // cada uno, eso significa estar tocando el nodo 02 cuando el usuario
+  // todavía está mirando el 01.
+  //
+  // Los porcentajes salen de la geometría real medida en el navegador:
+  // el nodo 01 está a ~205px del tope del recorrido y el 07 a ~300px de
+  // su pie, con un viewport de referencia de 900px. "start 30%" deja el
+  // nodo 01 casi centrado en el arranque y "end 83%" hace que el trazo
+  // se complete justo cuando el 07 llega al centro.
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start 82%", "end 100%"],
+    offset: ["start 30%", "end 83%"],
   });
 
-  // Sin `useSpring`: el trazo se ata 1:1 al scroll, a pedido del cliente
-  // ("que se mueva según la velocidad del scroll"). Un resorte suaviza
-  // pero desacopla -- la línea queda atrás y se acomoda sola, así que su
-  // velocidad la marca el resorte y no la mano del usuario. Con el valor
-  // crudo, scrolleás rápido y se dibuja rápido; scrolleás lento y se
-  // dibuja lento.
-  const progress = scrollYProgress;
+  const progress = useSpring(scrollYProgress, PROGRESS_SPRING);
 
   const measure = useCallback(() => {
     const container = containerRef.current;

@@ -32,10 +32,22 @@ export function ResultsSection() {
     <section
       id="resultados"
       className="relative -mt-10 overflow-hidden pt-12 pb-20 sm:-mt-14 sm:pt-16 sm:pb-24"
-      style={{
-        background:
-          "linear-gradient(135deg, #ffffff 0%, var(--brand-12) 40%, var(--brand-20) 65%, #ffffff 100%)",
-      }}
+      // Fondo #DFEDEF, el MISMO del hero, a pedido del cliente.
+      //
+      // Antes tenía un degradado diagonal
+      // (linear-gradient(135deg, #fff, brand-12, brand-20, #fff)) que
+      // producía un corte de color visible en el borde inferior. La
+      // causa: a 135° el stop blanco del 100% cae en la esquina
+      // inferior DERECHA, así que todo el resto del borde de abajo
+      // seguía teñido de brand-20 -- y justo debajo el roadmap es
+      // blanco puro. Una línea recta a lo ancho de la página.
+      //
+      // Con un color plano ese problema no puede volver: no hay ningún
+      // punto del borde que quede en un valor distinto del resto.
+      //
+      // La textura la siguen aportando los halos y el grano de acá
+      // abajo, que sí se desvanecen hacia los bordes.
+      style={{ background: "#DFEDEF" }}
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div
@@ -101,12 +113,25 @@ export function ResultsSection() {
         </div>
       </Reveal>
 
-      <Container className="relative">
-        <p className="mt-14 text-center text-xs text-text-secondary/70 sm:mt-16">
-          Datos demostrativos. Serán reemplazados por casos reales y
-          validados.
-        </p>
-      </Container>
+      {/* ELIMINADA: la línea "Datos demostrativos. Serán reemplazados por
+          casos reales y validados." Se sacó a pedido del cliente.
+
+          ⚠ DEUDA ABIERTA, anotada acá a propósito. Con esta línea afuera
+          no queda NINGUNA marca en pantalla de que los seis casos son
+          inventados: ni el prefijo [PLACEHOLDER] en el nombre (se sacó
+          antes), ni la píldora "Caso demostrativo" (se perdió en una
+          reversión), ni este texto.
+
+          Hoy la sección muestra nombres de profesionales que no existen
+          junto a cifras de facturación de $52M, $38M y $31M sin ninguna
+          aclaración. Eso es exactamente lo que prohíben AGENTS.md
+          ("nunca presentar como reales testimonios, profesionales,
+          resultados económicos") y DEC-019.
+
+          Mientras la página siga en noindex y en revisión de diseño no
+          hay daño real. ANTES de publicar hay que resolverlo: o llegan
+          casos validados, o vuelve una marca visible (la píldora es la
+          opción menos invasiva). */}
     </section>
   );
 }

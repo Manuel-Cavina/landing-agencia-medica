@@ -1,17 +1,15 @@
 "use client";
 
 /**
- * Número monetario que cuenta desde 0 hasta su valor real CADA VEZ que la
- * tarjeta que lo contiene entra en el viewport (a pedido explícito del
- * cliente: "tiene que hacerse ese efecto cada vez que aparece el card
- * por pantalla"). Esto reemplaza a propósito la regla original de
- * docs/AGENTS.md para esta sección ("los contadores... una sola vez...
- * no reiniciar cada vez que el usuario vuelve"): tiene sentido acá
- * porque el carrusel es un loop continuo, no una sección estática que
- * se visita una vez.
+ * Número monetario que cuenta desde 0 hasta su valor real una sola vez,
+ * cuando entra en el viewport.
  *
- * Formato de moneda real vía Intl.NumberFormat y un easing desacelerado
- * (no lineal).
+ * El servidor y la primera hidratación muestran el mismo cero inicial.
+ * Así la cifra nunca aparece completa para después retroceder antes de
+ * animarse. Al terminar queda fija en su valor real y no vuelve a empezar.
+ *
+ * Con movimiento reducido, el primer ingreso al viewport muestra el valor
+ * final sin animación. El formato monetario se resuelve con Intl.NumberFormat.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -31,51 +29,64 @@ export function AnimatedCounter({
   value: number;
   currency: string;
   suffix?: string;
+  /** Conservado para no romper consumidores existentes; no reinicia la cuenta. */
+  trigger?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  // Con movimiento reducido: mostrar siempre el valor final, sin animar
-  // (se decide una sola vez en el inicializador de useState).
-  const [prefersReducedMotion] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-  const [display, setDisplay] = useState(prefersReducedMotion ? value : 0);
+  const rafRef = useRef<number | undefined>(undefined);
+  const hasAnimatedRef = useRef(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion) return;
-
-    let rafId: number;
+    if (!el || hasAnimatedRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          const start = performance.now();
-          function tick(now: number) {
-            const progress = Math.min((now - start) / DURATION_MS, 1);
-            setDisplay(Math.round(easeOutCubic(progress) * value));
-            if (progress < 1) rafId = requestAnimationFrame(tick);
-          }
-          rafId = requestAnimationFrame(tick);
-        } else {
-          // Vuelve a 0 al salir de vista, para que la próxima vez que
-          // entre (el carrusel es un loop continuo) el efecto se repita
-          // desde el principio en vez de aparecer ya "lleno".
-          cancelAnimationFrame(rafId);
-          setDisplay(0);
+        if (!entry.isIntersecting || hasAnimatedRef.current) return;
+
+        hasAnimatedRef.current = true;
+        observer.disconnect();
+
+        const prefersReducedMotion =
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (prefersReducedMotion) {
+          setProgress(1);
+          return;
         }
+
+        const start = performance.now();
+
+        function tick(now: number) {
+          const elapsed = Math.min((now - start) / DURATION_MS, 1);
+          setProgress(easeOutCubic(elapsed));
+
+          if (elapsed < 1) {
+            rafRef.current = requestAnimationFrame(tick);
+          } else {
+            rafRef.current = undefined;
+          }
+        }
+
+        rafRef.current = requestAnimationFrame(tick);
       },
       { threshold: 0.4 },
     );
 
     observer.observe(el);
+
     return () => {
       observer.disconnect();
-      cancelAnimationFrame(rafId);
+      if (rafRef.current !== undefined) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = undefined;
+      }
     };
-  }, [value, prefersReducedMotion]);
+  }, []);
 
+  const display = Math.round(progress * value);
   const formatted = new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency,

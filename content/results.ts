@@ -8,18 +8,9 @@
  * (veracidad del contenido). Cuando existan casos reales, agregarlos con
  * status: "validated" y una fotografía real en `image`.
  *
- * ⚠️ `public/preview-photo-do-not-ship.jpeg` es una foto real de una
- * persona real (el nombre del archivo lo deja explícito a propósito). Se
- * usa acá SOLO para previsualizar cómo se ve una foto de verdad en cada
- * variante de tarjeta (recorte, tamaño, vidrio encima) mientras se elige
- * un diseño -- ver components/results/professional-card.tsx. Nunca debe
- * llegar a producción pegada a un nombre inventado como "Dra. Renata
- * M.": eso sería mostrar la cara de una persona real bajo una identidad
- * profesional ficticia, exactamente lo que prohíbe AGENTS.md ("no
- * descargar fotografías de médicos desconocidos; no inventar
- * identidades visuales"). Sacar este `image` de los 6 casos apenas se
- * elija una variante y antes de cualquier revisión visual con el
- * cliente fuera de esta exploración puntual.
+ * Mientras no haya material validado, las tarjetas muestran una
+ * composición abstracta por categoría. No se asocia una persona real
+ * con una identidad o un testimonio ficticios.
  */
 
 export type ProfessionalCase = {
@@ -42,9 +33,8 @@ export const RESULTS_CASES: ProfessionalCase[] = [
   {
     id: "renata-m",
     status: "placeholder",
-    image: "/preview-photo-do-not-ship.jpeg",
     category: "professional",
-    name: "[PLACEHOLDER] Dra. Renata M.",
+    name: "Dra. Renata M.",
     specialty: "Medicina estética",
     quote:
       "El sistema ordenó todo el proceso, desde la primera consulta hasta el seguimiento.",
@@ -55,9 +45,8 @@ export const RESULTS_CASES: ProfessionalCase[] = [
   {
     id: "clinica-fc",
     status: "placeholder",
-    image: "/preview-photo-do-not-ship.jpeg",
     category: "clinic",
-    name: "[PLACEHOLDER] Clínica F.C.",
+    name: "Clínica F.C.",
     specialty: "Cirugía plástica",
     quote:
       "Pudimos ver en un solo lugar cada oportunidad, desde que entra hasta que se convierte.",
@@ -68,9 +57,8 @@ export const RESULTS_CASES: ProfessionalCase[] = [
   {
     id: "grupo-lv",
     status: "placeholder",
-    image: "/preview-photo-do-not-ship.jpeg",
     category: "company",
-    name: "[PLACEHOLDER] Grupo L.V.",
+    name: "Grupo L.V.",
     specialty: "Dermatología avanzada",
     quote:
       "Dejamos de perder consultas por falta de seguimiento ordenado.",
@@ -81,9 +69,8 @@ export const RESULTS_CASES: ProfessionalCase[] = [
   {
     id: "tomas-b",
     status: "placeholder",
-    image: "/preview-photo-do-not-ship.jpeg",
     category: "professional",
-    name: "[PLACEHOLDER] Dr. Tomás B.",
+    name: "Dr. Tomás B.",
     specialty: "Odontología estética",
     quote:
       "La calificación automática de consultas nos ahorró horas de trabajo administrativo.",
@@ -94,9 +81,8 @@ export const RESULTS_CASES: ProfessionalCase[] = [
   {
     id: "estudio-kr",
     status: "placeholder",
-    image: "/preview-photo-do-not-ship.jpeg",
     category: "clinic",
-    name: "[PLACEHOLDER] Estudio K.R.",
+    name: "Estudio K.R.",
     specialty: "Medicina capilar",
     quote:
       "Tener estrategia, adquisición y seguimiento conectados cambió cómo tomamos decisiones.",
@@ -107,9 +93,8 @@ export const RESULTS_CASES: ProfessionalCase[] = [
   {
     id: "clinica-np",
     status: "placeholder",
-    image: "/preview-photo-do-not-ship.jpeg",
     category: "clinic",
-    name: "[PLACEHOLDER] Clínica N.P.",
+    name: "Clínica N.P.",
     specialty: "Nutrición y estética",
     quote:
       "El diagnóstico inicial nos mostró en qué parte del proceso perdíamos más pacientes.",

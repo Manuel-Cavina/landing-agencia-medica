@@ -1,32 +1,61 @@
+"use client";
+
 /**
- * Tarjeta individual de la sección "Resultados". Server Component: el
- * único fragmento que necesita JavaScript (el número animado) vive
- * aislado en components/ui/animated-counter.tsx.
+ * Tarjeta individual de la sección "Resultados".
  *
- * Diseño elegido por el cliente después de comparar 6 variantes lado a
- * lado en el carrusel real: foto grande arriba (58% de la tarjeta) con
- * una tarjeta de vidrio (nombre + especialidad) flotando sobre el borde
- * inferior de la foto. El vidrio de esa etiqueta usa el mismo estilo que
- * el botón "Ver video" del hero (bg-brand-12 + borde + blur), no el
- * blanco de .glass-surface -- pedido explícito del cliente para unificar
- * el lenguaje visual entre el hero y esta sección.
+ * Comparte con el roadmap el radio exterior, el borde suave, el ritmo de
+ * padding y la elevación de 3px. Su superficie permanece transparente:
+ * no recupera el bloque turquesa que separaba las tarjetas del fondo.
+ *
+ * Compacta: medía 606px de alto y el cliente la pidió más chica. Se bajó
+ * la imagen de aspect-[4/5] a aspect-[4/3] (el recorte sigue siendo
+ * cómodo para un retrato), la cita a dos líneas y la cifra un escalón
+ * tipográfico. El ancho no cambió: lo fija el carrusel con basis-[25%].
+ *
+ * La card comparte la geometría del roadmap, pero no su placa turquesa:
+ * borde, radio, padding y elevación organizan el contenido sin producir
+ * un salto de color contra el fondo de Resultados.
  */
 
 import Image from "next/image";
-import { Image as ImageIcon } from "lucide-react";
+import { Building2, Hospital, Stethoscope, type LucideIcon } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import type { ProfessionalCase } from "@/content/results";
 
-const CATEGORY_LABELS: Record<ProfessionalCase["category"], string> = {
-  professional: "Profesional",
-  clinic: "Clínica",
-  company: "Empresa",
+const CATEGORY_ICONS: Record<ProfessionalCase["category"], LucideIcon> = {
+  professional: Stethoscope,
+  clinic: Hospital,
+  company: Building2,
 };
 
 export function ProfessionalCard({ case: item }: { case: ProfessionalCase }) {
+  const CategoryIcon = CATEGORY_ICONS[item.category];
+
   return (
-    <article className="flex h-full min-h-[450px] flex-col overflow-hidden rounded-lg shadow-soft">
-      <div className="relative h-[58%] min-h-[240px] w-full shrink-0 bg-surface-soft">
+    <article
+      // Tarjeta BLANCA sobre el fondo #DFEDEF de la sección.
+      //
+      // Este componente pasó por las tres variantes y el orden importa
+      // para entender por qué ésta es la correcta:
+      //
+      //  1. Blanca sobre sección blanca -> el borde recortaba el fondo
+      //     sin separar nada. Un marco que no hacía trabajo.
+      //  2. Sin caja, transparente -> resolvía lo anterior, pero al
+      //     pasar la sección a #DFEDEF el contenido quedó apoyado
+      //     directamente sobre el tinte, sin jerarquía.
+      //  3. Blanca sobre #DFEDEF (ésta) -> el blanco por fin CONTRASTA
+      //     con el fondo, así que el borde y la sombra vuelven a hacer
+      //     lo que se supone que hacen: levantar la tarjeta del plano.
+      //
+      // Efecto secundario medido: el texto vuelve a apoyarse sobre
+      // blanco puro. brand-700 pasa de 3,88:1 (falla AA) a 4,66:1 (lo
+      // cumple) y text-primary llega a 11,54:1.
+      //
+      // Hover: lift de 3px + shadow-float + borde turquesa, el mismo
+      // trío que usan las tarjetas del roadmap.
+      className="flex h-full flex-col rounded-lg border border-border-soft bg-white p-3 shadow-soft transition-[box-shadow,border-color,translate] duration-slow ease-brand hover:-translate-y-[3px] hover:border-brand-500/40 hover:shadow-float motion-reduce:transition-none"
+    >
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-md bg-surface-soft">
         {item.image ? (
           <Image
             src={item.image}
@@ -36,33 +65,53 @@ export function ProfessionalCard({ case: item }: { case: ProfessionalCase }) {
             className="object-cover"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-text-secondary">
-            <ImageIcon aria-hidden="true" size={28} strokeWidth={1.5} />
-            <span className="text-xs font-medium">[FOTO PENDIENTE]</span>
-          </div>
+          <>
+            <div
+              aria-hidden="true"
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(circle at 50% 42%, var(--brand-20), transparent 68%)",
+              }}
+            />
+            <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
+              <span className="absolute h-36 w-36 rounded-pill border border-border-soft/70" />
+              <span className="absolute h-52 w-52 rounded-pill border border-white/60" />
+              <span className="relative flex h-20 w-20 items-center justify-center rounded-pill border border-border-soft bg-white/75 text-brand-700 shadow-soft backdrop-blur-sm">
+                <CategoryIcon size={32} strokeWidth={1.5} />
+              </span>
+            </div>
+          </>
         )}
 
-        <span className="absolute left-3 top-3 rounded-pill bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-brand-700">
-          {CATEGORY_LABELS[item.category]}
-        </span>
+        {/* ELIMINADA: píldora de categoría ("Profesional" / "Clínica" /
+            "Empresa") en la esquina superior izquierda de la imagen.
+            Se sacó a pedido del cliente.
 
-        {/* Mismo vidrio que "Ver video" en el hero (bg-brand-12 + borde +
-            blur), no .glass-surface blanco -- a pedido del cliente. */}
-        <div className="absolute inset-x-4 -bottom-7 rounded-lg border border-border-soft bg-brand-12 px-4 py-3 backdrop-blur-sm">
-          <h3 className="text-base font-semibold text-text-secondary">{item.name}</h3>
-          <p className="text-sm text-text-secondary">{item.specialty}</p>
-        </div>
+            La categoría igual sigue viva en los datos y se sigue
+            leyendo: define qué ícono se dibuja en el marcador de imagen
+            (CATEGORY_ICONS). Solo dejó de escribirse como texto. */}
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 bg-surface px-6 pt-11 pb-6">
-        <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-text-secondary">
+      <div className="flex flex-1 flex-col px-1.5 pb-1 pt-4">
+        {/* Turquesa, a pedido del cliente: el nombre es lo primero que
+            se lee de la tarjeta y así engancha con la cifra de abajo,
+            que ya usa el mismo brand-700. Sobre blanco da 4,66:1 y
+            cumple AA. */}
+        <h3 className="text-[15px] font-bold tracking-tight text-brand-700">{item.name}</h3>
+        <p className="mt-0.5 text-[13px] text-text-secondary">{item.specialty}</p>
+
+        {/* Dos líneas, no tres: es una cita de apoyo, no el contenido
+            principal de la tarjeta. La cifra de abajo es lo que importa. */}
+        <p className="mt-2.5 line-clamp-2 flex-1 text-[13px] leading-relaxed text-text-secondary">
           &ldquo;{item.quote}&rdquo;
         </p>
-        <div>
-          <p className="text-2xl font-semibold text-brand-700 sm:text-3xl">
+
+        <div className="mt-3 border-t border-border-soft pt-3">
+          <p className="text-xl font-black tracking-tight text-brand-700 sm:text-2xl">
             <AnimatedCounter value={item.value} currency={item.currency} suffix={item.suffix} />
           </p>
-          <p className="mt-1 text-xs font-medium text-text-primary">{item.metricLabel}</p>
+          <p className="mt-0.5 text-[11px] font-medium text-text-secondary">{item.metricLabel}</p>
         </div>
       </div>
     </article>

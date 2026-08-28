@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/layout/site-header";
+import { SectionIndex } from "@/components/layout/section-index";
+import { SiteFooter } from "@/components/layout/site-footer";
 import "./globals.css";
 
 // Helvetica Neue (pedida en docs/DESIGN_SYSTEM.md) es una fuente propietaria
@@ -39,7 +41,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <SiteHeader />
-        <main>{children}</main>
+        {/* Índice lateral: fijo, solo desde 1280px. Va fuera de <main>
+            para que no lo alcance el `inert` que el menú móvil aplica al
+            contenido principal. */}
+        <SectionIndex />
+        {/* flex-1: empuja el footer al fondo de la ventana aunque el
+            contenido no llegue a llenarla. */}
+        <main className="flex-1">{children}</main>
+        {/* Fuera de <main> a propósito: <footer> es un landmark propio y
+            no debe anidarse dentro del contenido principal. */}
+        <SiteFooter />
       </body>
     </html>
   );

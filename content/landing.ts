@@ -36,15 +36,6 @@ export const HERO_CONTENT = {
     href: "#agendar" as const,
   },
 
-  // Link secundario junto al CTA: una acción distinta (ver el video) y no
-  // otro "agendar" compitiendo con el CTA principal. Apunta al propio
-  // video del hero (id="hero-video" en hero.tsx), no a #sistema -- el
-  // texto ahora habla de ver el video, así que tiene que llevar ahí.
-  secondaryLink: {
-    label: "Ver video",
-    href: "#hero-video" as const,
-  },
-
   // youtubeId en null hasta tener el video real: no se inventa un ID de
   // muestra. Mientras tanto, YouTubeFacade muestra un estado pendiente.
   video: {

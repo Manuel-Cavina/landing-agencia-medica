@@ -201,6 +201,10 @@ export function SiteHeader() {
             ese refractado no se ve. Queda disponible para una superficie
             realmente translúcida en una futura sección (candidatos ya
             anotados en DESIGN_SYSTEM.md: calculadora, tarjetas del roadmap). */}
+        {/* La barra arranca TRANSPARENTE, flotando directamente sobre el
+            fondo del hero, y toma la tarjeta de vidrio apenas hay
+            cualquier scroll. Se probó dejarla siempre blanca y el
+            cliente pidió volver a este comportamiento. */}
         <div
           data-scrolled={isScrolled}
           className={`flex h-16 items-center justify-between gap-4 rounded-lg px-4 transition-[background-color,box-shadow,border-color] duration-slow ease-brand sm:h-[72px] sm:px-6 ${

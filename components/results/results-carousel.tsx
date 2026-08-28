@@ -97,10 +97,19 @@ export function ResultsCarousel({ cases }: { cases: ProfessionalCase[] }) {
             key={item.id}
             className="min-w-0 shrink-0 basis-[66%] px-3 sm:basis-[38%] sm:px-4 lg:basis-[25%] lg:px-6"
           >
-            {/* El agrandado al hover va en este div interno, no en el de
-                arriba: así el tamaño que Embla mide para el slide (con su
-                padding) nunca cambia, y el scale es puramente visual. */}
-            <div className="relative h-full transition-transform duration-slow ease-brand hover:z-10 hover:scale-105">
+            {/* SIN `hover:scale-105`.
+                Este contenedor agrandaba la tarjeta un 5% al pasar el
+                mouse, pero el viewport de Embla (el div de arriba) tiene
+                `overflow-hidden` para ocultar los slides fuera de cuadro:
+                la tarjeta crecía y el recorte le comía el borde inferior
+                -- se veía el texto de la métrica cortado por la mitad.
+                Reportado por el cliente ("cuando hace zoom queda mal").
+
+                El hover ahora lo resuelve la propia tarjeta con el lift
+                de 3px del roadmap (components/results/professional-card.tsx),
+                que al ser un desplazamiento chico entra sin problema en
+                el espacio que deja el padding vertical del carrusel. */}
+            <div className="relative h-full">
               <ProfessionalCard case={item} />
             </div>
           </div>

@@ -28,17 +28,21 @@ const GRAIN_BACKGROUND =
 export function Hero() {
   return (
     <section
+      // id="inicio": destino del enlace "Volver arriba" del footer
+      // (components/layout/site-footer.tsx). Es lo único que se agregó al
+      // hero en esta tarea -- el ancla no existía y sin ella el enlace
+      // habría apuntado a la nada. No cambia nada visual.
+      id="inicio"
       className="relative overflow-hidden"
-      // Degradado diagonal turquesa muy diluido (blanco -> brand-12 ->
-      // brand-20 -> blanco), a pedido del cliente sobre una referencia
-      // visual: la misma composición diagonal, pero con nuestros colores
-      // de marca y bien tenue (nunca un fondo oscuro ni saturado, eso
-      // sigue en contra del design system). Los halos y el grano de abajo
-      // quedan encima, como textura adicional, no reemplazan esto.
-      style={{
-        background:
-          "linear-gradient(135deg, #ffffff 0%, var(--brand-12) 40%, var(--brand-20) 65%, #ffffff 100%)",
-      }}
+      // Fondo plano #DFEDEF, el MISMO que la sección de preguntas
+      // frecuentes, a pedido del cliente: la página abre y cierra sobre
+      // el mismo tono. Reemplaza al degradado diagonal anterior
+      // (blanco -> brand-12 -> brand-20 -> blanco).
+      //
+      // Los halos y el grano de abajo siguen encima y siguen leyéndose:
+      // brand-20 compuesto sobre #DFEDEF da rgb(192,225,228), claramente
+      // más saturado que el fondo, así que la textura no se pierde.
+      style={{ background: "#DFEDEF" }}
     >
       {/* Fondo decorativo: halos difuminados en color de marca + grano
           extremadamente ligero, encima del degradado diagonal de arriba.
@@ -116,39 +120,7 @@ export function Hero() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.34}>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            {/* Botón un poco más grande que el mínimo (h-14 en vez de
-                h-12): sigue siendo el mismo botón del navbar en look, pero
-                con más peso visual para que gane claramente contra el
-                link secundario -- una sola acción debe dominar la
-                decisión del visitante. */}
-            <Button
-              href={HERO_CONTENT.cta.href}
-              icon={<CalendarCheck aria-hidden="true" size={18} strokeWidth={2} />}
-              className="h-12 px-6 text-base"
-            >
-              {HERO_CONTENT.cta.label}
-            </Button>
-            {/* Acción distinta a la del CTA principal (recorrer la página,
-                no agendar), por eso no cuenta como un segundo CTA
-                compitiendo con el primero. Apunta a #sistema, la misma
-                ancla que ya usa el navbar. Píldora de vidrio translúcido
-                (a pedido del cliente, sobre una referencia visual) en vez
-                de link de texto: sigue siendo visualmente más liviana que
-                el botón principal (sin relleno sólido), así que no le
-                disputa la atención. */}
-            <a
-              href={HERO_CONTENT.secondaryLink.href}
-              className="inline-flex items-center gap-2 rounded-pill border border-border-soft bg-brand-12 px-5 py-3 text-sm font-semibold text-text-secondary backdrop-blur-sm transition-colors duration-fast ease-brand hover:bg-brand-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
-            >
-              {HERO_CONTENT.secondaryLink.label}
-              <ArrowRight aria-hidden="true" size={16} />
-            </a>
-          </div>
-        </Reveal>
-
-        <Reveal delay={0.5} className="w-full self-stretch">
+        <Reveal delay={0.34} className="w-full self-stretch">
           {/* id="hero-video": destino del link "Ver video" de arriba
               (content/landing.ts). max-w-[960px]: ahora que no estamos
               forzando el "sin scroll", el video puede volver al piso real
@@ -162,6 +134,26 @@ export function Hero() {
               <YouTubeFacade video={HERO_CONTENT.video} />
             </div>
           </div>
+        </Reveal>
+
+        {/* CTA DESPUÉS del video, a pedido del cliente. El orden nuevo es
+            promesa -> prueba -> acción: el visitante ve de qué se trata
+            antes de que se le pida algo.
+
+            Quedó UN solo botón. Antes lo acompañaba "Ver video" apuntando
+            a #hero-video, y con el bloque acá abajo ese link mandaría a
+            scrollear HACIA ARRIBA, al video que el visitante acaba de
+            pasar. Un enlace que retrocede sobre contenido ya visto no
+            aporta nada, y de paso el CTA principal deja de competir con
+            nada: una sola acción domina la decisión. */}
+        <Reveal delay={0.5}>
+          <Button
+            href={HERO_CONTENT.cta.href}
+            icon={<CalendarCheck aria-hidden="true" size={18} strokeWidth={2} />}
+            className="h-12 px-6 text-base"
+          >
+            {HERO_CONTENT.cta.label}
+          </Button>
         </Reveal>
       </Container>
     </section>

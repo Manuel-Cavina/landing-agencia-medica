@@ -32,21 +32,22 @@
  * secciones.
  */
 
-import { CalendarCheck } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { RoadmapJourney } from "@/components/roadmap/roadmap-journey";
 import { RoadmapStep } from "@/components/roadmap/roadmap-step";
 import { PILLARS } from "@/content/pillars";
-import { NAV_CTA } from "@/config/site";
 
 export function RoadmapSection() {
   return (
     <section
       id="sistema"
       aria-labelledby="roadmap-title"
-      className="relative overflow-x-clip py-20 sm:py-28"
+      // Padding simétrico con Calculadora y FAQ (py-14 / sm:py-20). El
+      // `pb-0` de antes existía solo mientras la franja turquesa de
+      // cierre era el último elemento de la sección; sin ella, la
+      // sección necesita su propio aire abajo.
+      className="relative overflow-x-clip py-14 sm:py-20"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div
@@ -108,55 +109,30 @@ export function RoadmapSection() {
           </RoadmapJourney>
         </Reveal>
 
-        {/* Cierre del recorrido. Va FUERA de <RoadmapJourney> a
-            propósito: si estuviera adentro, entraría en la medición del
-            contenedor y la curva se estiraría hasta acá. DEC-013 de
-            docs/DECISIONS.md pide que la línea termine en el pilar 07 y
-            que no siga hacia un espacio vacío -- por eso este bloque es
-            visualmente independiente, separado por su propio margen, y
-            no lo toca ningún trazo.
-
-            El copy es deliberadamente sobrio: describe qué pasa en la
-            reunión, sin prometer resultados ni cifras (DEC-019,
-            veracidad del contenido). Reutiliza el CTA principal de la
-            página (#agendar), que es la única conversión definida en
-            docs/PROJECT.md -- no se inventa una acción nueva que
-            competiría con ella. */}
-        <Reveal delay={0} className="mt-20 sm:mt-28">
-          <div className="relative overflow-hidden rounded-lg border border-border-soft bg-brand-20 px-6 py-12 text-center backdrop-blur-sm sm:px-12 sm:py-16">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -top-24 left-1/2 h-[380px] w-[380px] -translate-x-1/2 rounded-pill opacity-70"
-              style={{ background: "radial-gradient(closest-side, var(--brand-20), transparent)" }}
-            />
-
-            <div className="relative">
-              <span className="inline-flex items-center gap-2 rounded-pill border border-border-soft bg-white/70 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-700 backdrop-blur-sm">
-                Fin del recorrido
-              </span>
-
-              <h3 className="mx-auto mt-6 max-w-2xl text-[26px] font-black leading-[1.12] tracking-tight text-brand-700 sm:text-[38px]">
-                Siete pilares, <em className="italic">un solo sistema</em>.
-              </h3>
-
-              <p className="mx-auto mt-4 max-w-xl text-base text-text-secondary sm:text-lg">
-                En una reunión de diagnóstico repasamos cuáles de estos pilares ya
-                tenés resueltos y cuál conviene construir primero en tu caso.
-              </p>
-
-              <div className="mt-8 flex justify-center">
-                <Button
-                  href={NAV_CTA.href}
-                  icon={<CalendarCheck aria-hidden="true" size={18} strokeWidth={2} />}
-                  className="h-12 px-6 text-base"
-                >
-                  {NAV_CTA.label}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Reveal>
       </Container>
     </section>
   );
 }
+
+/* ELIMINADO: franja de cierre "Siete pilares. Un solo sistema."
+   ------------------------------------------------------------
+   Era una banda turquesa a todo el ancho con tres tarjetas (Dónde estás
+   hoy / Qué construir primero / Cómo se sostiene) y un CTA.
+
+   Se sacó a pedido del cliente ("siento que no dice nada"), y la
+   auditoría de diseño coincidía por tres motivos medidos:
+
+   1. Redundante. Su título repetía "siete pilares", que es exactamente
+      lo que ya dice el h2 de la sección unos scrolls más arriba.
+   2. Peso. La sección del roadmap ya ocupaba 4551px, el 47% de toda la
+      página. Esta franja aportaba ~500px de eso sin información nueva.
+   3. CTA duplicado. Su botón era el quinto "Agendar una reunión
+      estratégica" de la página (navbar, hero, éste, FAQ, CTA final).
+      Repetir la misma acción le quita peso, no se lo suma.
+
+   Con la franja afuera, la sección vuelve a tener padding inferior
+   propio: el `pb-0` existía solo porque la banda cerraba la sección y
+   cualquier padding metía una franja blanca entre ella y la sección
+   siguiente. Ese problema ya no existe.
+
+   DEC-013 se sigue cumpliendo: la línea termina en el pilar 07. */
