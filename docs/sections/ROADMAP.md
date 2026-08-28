@@ -102,7 +102,7 @@ Cómo incorporar una imagen real: agregar `image: "/ruta-en-public.jpg"` al pila
 
 Un solo `<svg>` para todo el recorrido, en `roadmap-journey.tsx`. Su `viewBox` es `0 0 <ancho real> <alto real>` del contenedor — es decir, **1:1 con los píxeles de pantalla**, sin `preserveAspectRatio="none"` estirando nada. Eso es lo que hace que el `stroke-dasharray` se comporte de forma predecible y que el grosor del trazo no se distorsione.
 
-Posiciones de los nodos: `DESKTOP_NODE_POSITIONS = [28, 74, 28, 74, 28, 74, 28]` (en `roadmap-journey.tsx`), un valor por pilar, como porcentaje del ancho del ANCLA de su fila. En escritorio el ancla mide todo el ancho de la fila, así que la curva barre ~28% → ~74% de la página: el nodo cae siempre en la mitad libre, del lado opuesto a la tarjeta. En móvil el ancla es el carril angosto de 30px y todos usan `MOBILE_NODE_POSITION = 50` (línea casi recta).
+Posiciones de los nodos: `DESKTOP_NODE_POSITIONS = [28, 74, 28, 74, 28, 74, 28]` (en `roadmap-journey.tsx`), un valor por pilar, como porcentaje del ancho del ANCLA de su fila. En escritorio y móvil el ancla mide todo el ancho de la fila, así que la curva barre ~28% → ~74% de la página y el nodo cae en la mitad libre, del lado opuesto a la tarjeta.
 
 Paridad de las tarjetas: `isLeft = index % 2 === 1` en `roadmap-step.tsx`, o sea que los pilares impares (01, 03, 05, 07) van a la DERECHA y los pares (02, 04, 06) a la izquierda, siguiendo el boceto del cliente. Esto también satisface DEC-012 de `docs/DECISIONS.md` ("el pilar 7 se posiciona a la derecha"), que la versión anterior contradecía. Los nodos van siempre en la mitad opuesta a la tarjeta, así que nunca se superponen.
 
@@ -191,7 +191,7 @@ Grilla de escritorio (`lg:`, ≥1024px): `grid-template-columns: minmax(0,1fr) c
 
 Comportamiento en tablet (`md:`, 768-1023px): misma alternancia que escritorio, con un carril algo más angosto: `clamp(110px, 11vw, 170px)`. Como los nodos se ubican por porcentaje del ancho del carril, la curva se comprime horizontalmente sola — no hay una variante de código aparte.
 
-Móvil (base, <768px): `grid-template-columns: 30px minmax(0,1fr)`. El ancla va en la columna 1, la tarjeta siempre en la columna 2 — sin alternancia. Todos los nodos usan `MOBILE_NODE_POSITION = 50`, así que la línea queda prácticamente recta. La distinción se hace midiendo el ancho del ancla (`< 60px`), dentro de un efecto de cliente.
+Móvil (base, <768px): la fila usa una tarjeta de ancho `calc(100% - 3.5rem)`, alternada a izquierda o derecha para dejar espacio visual del lado opuesto al nodo. El ancla ocupa toda la fila y se mantienen las posiciones de `DESKTOP_NODE_POSITIONS`, por lo que la línea conserva la curva completa también en pantallas angostas; la geometría se mide en píxeles reales dentro de un efecto de cliente.
 
 Clases/breakpoints usados: los de Tailwind por defecto (`md:` = 768px, `lg:` = 1024px), sin breakpoints custom.
 

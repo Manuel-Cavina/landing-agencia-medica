@@ -13,8 +13,8 @@
  *
  * El ancla es ABSOLUTA y no participa de la grilla, para poder medir dos
  * cosas distintas según el ancho sin duplicar marcado:
- * - Móvil: mide 30px (el carril angosto de la izquierda) -> el nodo va
- *   centrado ahí y la línea queda casi recta.
+ * - Móvil: mide TODO el ancho de la fila -> el nodo alterna entre ambos
+ *   lados y la línea conserva el recorrido curvo de escritorio.
  * - Escritorio/tablet (md:): mide el ancho COMPLETO de la fila -> el
  *   nodo se ubica por porcentaje de todo ese ancho (ver
  *   DESKTOP_NODE_POSITIONS en roadmap-journey.tsx), no dentro de un
@@ -23,8 +23,8 @@
  *   moverse apenas unos píxeles dentro de una columna central.
  *
  * Grilla:
- * - Móvil (base, <768px): `30px` (carril) + `1fr` (tarjeta), sin
- *   alternancia.
+ * - Móvil (base, <768px): una tarjeta amplia, alineada a izquierda o
+ *   derecha y con espacio para que la curva pase por el lado opuesto.
  * - Escritorio/tablet (md:): dos columnas iguales; la tarjeta ocupa la
  *   1 o la 2 según la paridad, y la mitad opuesta queda libre para que
  *   pase la curva.
@@ -50,16 +50,18 @@ export function RoadmapStep({
   const isLeft = index % 2 === 1;
 
   return (
-    <li className="relative grid grid-cols-[30px_minmax(0,1fr)] gap-x-3 pb-12 sm:gap-x-4 sm:pb-16 md:grid-cols-2 md:gap-x-10 md:pb-20 lg:gap-x-16 lg:pb-24">
+    <li className="relative flex pb-12 sm:pb-16 md:grid md:grid-cols-2 md:gap-x-10 md:pb-20 lg:gap-x-16 lg:pb-24">
       {/* Ancla del recorrido: invisible, sin alto, fuera de la grilla.
           Marca dónde empieza esta fila y cuál es el ancho de referencia
           para ubicar su nodo. */}
       <div
         data-roadmap-anchor
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 h-0 w-[30px] md:w-full"
+        className="pointer-events-none absolute inset-x-0 top-0 h-0 w-full"
       />
-      <div className={`col-start-2 ${isLeft ? "md:col-start-1" : "md:col-start-2"}`}>
+      <div
+        className={`min-w-0 w-[calc(100%-3.5rem)] ${isLeft ? "mr-auto" : "ml-auto"} md:col-span-1 md:w-auto ${isLeft ? "md:col-start-1" : "md:col-start-2"}`}
+      >
         <RoadmapCard pillar={pillar} side={isLeft ? "left" : "right"} />
       </div>
     </li>

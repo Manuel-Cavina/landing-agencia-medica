@@ -167,7 +167,7 @@ export function RoadmapCard({ pillar, side }: { pillar: Pillar; side: "left" | "
           <PillarIcon name={pillar.iconName} className="shrink-0 text-brand-500" />
         </div>
 
-        <h3 className="mt-6 flex items-baseline gap-2 text-[30px] font-black leading-[1.05] tracking-tight text-brand-700 sm:text-[40px]">
+        <h3 className="mt-6 flex min-w-0 items-baseline gap-2 text-2xl font-black leading-[1.05] tracking-tight text-brand-700 sm:text-[30px] md:text-[40px]">
           <span className="text-base font-bold text-brand-900 sm:text-lg">{pillar.number}.</span>
           {pillar.title}
         </h3>

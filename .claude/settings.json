@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_engram_engram__mem_search",
+      "Bash(node \"C:/Users/cavin/AppData/Local/Temp/claude/c--Users-cavin-Proyectos-Pagina-Uli-odisea/0b294ca7-e608-4758-8faa-383874cc5a74/scratchpad/shot.mjs\" \"C:/Users/cavin/AppData/Local/Temp/claude/c--Users-cavin-Proyectos-Pagina-Uli-odisea/0b294ca7-e608-4758-8faa-383874cc5a74/scratchpad/before\" 390 844)",
+      "Bash(cp \"C:/Users/cavin/AppData/Local/Temp/claude/c--Users-cavin-Proyectos-Pagina-Uli-odisea/0b294ca7-e608-4758-8faa-383874cc5a74/scratchpad/shot.mjs\" ./.roadmap-shot.mjs)",
+      "Bash(node ./.roadmap-shot.mjs \"C:/Users/cavin/AppData/Local/Temp/claude/c--Users-cavin-Proyectos-Pagina-Uli-odisea/0b294ca7-e608-4758-8faa-383874cc5a74/scratchpad/before\" 390 844)"
+    ]
+  }
+}

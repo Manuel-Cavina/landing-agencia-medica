@@ -59,8 +59,8 @@ const PROGRESS_SPRING = { stiffness: 380, damping: 42, mass: 0.22, restDelta: 0.
  * En escritorio el ancla mide TODO el ancho de la fila, así que estos
  * valores barren ~28% -> ~74% de la página: el nodo cae siempre en la
  * mitad libre, del lado opuesto a la tarjeta, y la curva se abre de
- * verdad (como en el boceto del cliente). En móvil el ancla es el
- * carril angosto de 30px y todos los nodos van centrados ahí.
+ * verdad (como en el boceto del cliente). En móvil el ancla también
+ * mide toda la fila, conservando la curva alrededor del carril central.
  */
 const DESKTOP_NODE_POSITIONS = [28, 74, 28, 74, 28, 74, 28];
 const MOBILE_NODE_POSITION = 50;
@@ -126,21 +126,16 @@ export function RoadmapJourney({ children, total }: { children: ReactNode; total
     if (rows.length === 0) return;
 
     const containerRect = container.getBoundingClientRect();
-    // El ancho del carril distingue escritorio de móvil sin leer
-    // window.innerWidth: en móvil el carril mide ~30px. La medición
+    // El ancla ocupa toda la fila en todos los breakpoints. La medición
     // corre en un efecto (solo cliente), así que no hay riesgo de
     // desajuste de hidratación.
     const firstRail = rows[0].querySelector<HTMLElement>("[data-roadmap-anchor]");
     if (!firstRail) return;
-    const isNarrowRail = firstRail.getBoundingClientRect().width < 60;
-
     const nextPoints = rows.map((row, index) => {
       const rowRect = row.getBoundingClientRect();
       const rail = row.querySelector<HTMLElement>("[data-roadmap-anchor]");
       const railRect = (rail ?? row).getBoundingClientRect();
-      const percent = isNarrowRail
-        ? MOBILE_NODE_POSITION
-        : (DESKTOP_NODE_POSITIONS[index] ?? MOBILE_NODE_POSITION);
+      const percent = DESKTOP_NODE_POSITIONS[index] ?? MOBILE_NODE_POSITION;
 
       // Y = centro vertical de la TARJETA, no el tope de la fila. Como
       // cada nodo es un extremo de la curva (los puntos de control
